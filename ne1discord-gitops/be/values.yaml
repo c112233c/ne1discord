@@ -2,7 +2,7 @@ replicaCount: 1
 
 image:
   repository: ghcr.io/c112233c/ne1discord-be
-  tag: "pending"
+  tag: "sha-5a57f3405bd2e2831709ab1b197a0f40895f2079"
   pullPolicy: Always
   pullSecrets: []
 
