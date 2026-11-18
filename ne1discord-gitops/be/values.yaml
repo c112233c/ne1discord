@@ -1,0 +1,29 @@
+replicaCount: 1
+
+image:
+  repository: ghcr.io/c112233c/ne1discord-be
+  tag: "pending"
+  pullPolicy: Always
+  pullSecrets: []
+
+service:
+  type: NodePort
+  port: 3000
+  nodePort: 30096
+
+containerPort: 3000
+
+env:
+  NODE_ENV: production
+  PORT: "3000"
+  TRUST_PROXY: "1"
+
+existingSecret: ne1discord-be-30096-secret
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi

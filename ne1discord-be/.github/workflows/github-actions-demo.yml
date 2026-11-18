@@ -1,0 +1,3 @@
+# This workflow was moved to the repository root:
+# .github/workflows/build-push.yml
+# GitHub only discovers workflows from the root .github/workflows directory.

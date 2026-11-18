@@ -1,0 +1,11 @@
+# Local tooling and secrets
+.serena/
+**/node_modules/
+**/.env
+**/.env.*
+!**/.env.example
+
+# Test/build output
+**/coverage/
+**/dist/
+**/npm-debug.log*

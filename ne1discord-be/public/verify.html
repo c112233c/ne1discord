@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>ne1discord · Verify account</title>
+  <link rel="stylesheet" href="/verify.css">
+  <script src="/verify.js" defer></script>
+</head>
+<body>
+  <main>
+    <h1>Verify your account</h1>
+    <p>Review your organization and Discord identities before linking them.</p>
+    <div id="identity" class="identity"></div>
+    <div id="status" class="muted">Loading account information…</div>
+    <div id="accounts" class="accounts"></div>
+    <button id="verify" type="button" disabled>Confirm and link accounts</button>
+    <div id="message" role="status" aria-live="polite"></div>
+    <p class="muted">Linking an account does not grant Discord server access yet. Profile and role synchronization is handled in the next phase.</p>
+  </main>
+</body>
+</html>

@@ -1,0 +1,23 @@
+{
+  "name": "ne1discord-be",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "dev": "node --watch src/server.js",
+    "start": "node src/server.js",
+    "job:nightly-restriction": "node src/jobs/nightly-restriction.js",
+    "test": "node --test",
+    "check": "node --check src/server.js && node --check src/app.js && node --check src/config/env.js && node --check src/config/restriction-env.js && node --check src/config/database.js && node --check src/jobs/nightly-restriction.js && node --check src/routes/auth.routes.js && node --check src/routes/binding.routes.js && node --check src/routes/health.routes.js && node --check src/services/keycloak.service.js && node --check src/services/discord.service.js && node --check src/services/discord-bot.service.js && node --check src/services/nightly-restriction.service.js && node --check src/services/profile-sync.service.js && node --check src/services/binding.service.js && node --check src/services/oauth-state.service.js && node --check src/services/mariadb-session.store.js && node --check src/services/metrics.service.js"
+  },
+  "dependencies": {
+    "dotenv": "^16.5.0",
+    "express": "^5.1.0",
+    "express-rate-limit": "^8.0.1",
+    "express-session": "^1.18.2",
+    "helmet": "^8.1.0",
+    "jose": "^6.1.0",
+    "mysql2": "^3.14.3"
+  }
+}

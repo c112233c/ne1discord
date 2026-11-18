@@ -1,0 +1,22 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: ne1discord-be
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/REPLACE_WITH_GITHUB_OWNER/ne1discord.git
+    targetRevision: main
+    path: ne1discord-gitops/be
+    helm:
+      releaseName: ne1discord-be-30096
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: boat
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
