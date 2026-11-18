@@ -2,7 +2,7 @@ const required = [
   "APP_BASE_URL", "SESSION_SECRET", "DB_HOST", "DB_NAME", "DB_USER", "DB_PASSWORD",
   "KEYCLOAK_ISSUER_URL", "KEYCLOAK_CLIENT_ID", "KEYCLOAK_CLIENT_SECRET", "KEYCLOAK_REDIRECT_URI",
   "DISCORD_CLIENT_ID", "DISCORD_CLIENT_SECRET", "DISCORD_REDIRECT_URI",
-  "DISCORD_BOT_TOKEN", "DISCORD_GUILD_ID", "DISCORD_VERIFIED_ROLE_ID"
+  "DISCORD_BOT_TOKEN", "DISCORD_GUILD_ID", "DISCORD_VERIFIED_ROLE_ID", "DISCORD_VERIFY_CHANNEL_ID"
 ];
 
 export function loadConfig(env = process.env) {
@@ -36,7 +36,8 @@ export function loadConfig(env = process.env) {
     },
     discordBot: {
       botToken: env.DISCORD_BOT_TOKEN, guildId: env.DISCORD_GUILD_ID,
-      verifiedRoleId: env.DISCORD_VERIFIED_ROLE_ID
+      verifiedRoleId: env.DISCORD_VERIFIED_ROLE_ID,
+      verifyChannelId: env.DISCORD_VERIFY_CHANNEL_ID
     }
   });
 }

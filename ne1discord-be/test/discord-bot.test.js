@@ -86,3 +86,35 @@ test("department role reuses an existing role with an exact matching name", asyn
   assert.equal(roleId, "existing-role");
   assert.equal(calls.some((call) => call.options.method === "POST"), false);
 });
+
+test("verification message is created with a Keycloak link button and reused on restart", async () => {
+  const calls = [];
+  let messages = [];
+  const bot = createDiscordBotService({
+    botToken: "test-token", guildId: "guild-id", verifiedRoleId: "verified-role-id"
+  }, {}, async (url, options = {}) => {
+    calls.push({ url, options });
+    if (url.includes("/messages?limit=100")) {
+      return { status: 200, ok: true, async json() { return messages; } };
+    }
+    if (url.endsWith("/messages") && options.method === "POST") {
+      const body = JSON.parse(options.body);
+      assert.equal(body.embeds[0].title, "ยินดีต้อนรับสู่ Discord Server");
+      assert.equal(body.components[0].components[0].url, "https://discord.example.com/auth/keycloak");
+      messages = [{ id: "welcome-message-id", author: { bot: true }, embeds: body.embeds }];
+      return { status: 200, ok: true, async json() { return { id: "welcome-message-id" }; } };
+    }
+    throw new Error("Unexpected Discord API request");
+  });
+
+  const first = await bot.ensureVerificationMessage({
+    channelId: "1572537106570682529", appBaseUrl: "https://discord.example.com"
+  });
+  const second = await bot.ensureVerificationMessage({
+    channelId: "1572537106570682529", appBaseUrl: "https://discord.example.com"
+  });
+
+  assert.deepEqual(first, { created: true, messageId: "welcome-message-id" });
+  assert.deepEqual(second, { created: false, messageId: "welcome-message-id" });
+  assert.equal(calls.filter((call) => call.options.method === "POST").length, 1);
+});

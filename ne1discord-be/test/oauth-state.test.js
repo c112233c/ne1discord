@@ -38,7 +38,8 @@ test("configuration requires bot settings and validates production Keycloak HTTP
     DISCORD_REDIRECT_URI: "https://discord.example.com/auth/discord/callback",
     DISCORD_BOT_TOKEN: "bot-token",
     DISCORD_GUILD_ID: "guild-id",
-    DISCORD_VERIFIED_ROLE_ID: "verified-role-id"
+    DISCORD_VERIFIED_ROLE_ID: "verified-role-id",
+    DISCORD_VERIFY_CHANNEL_ID: "1572537106570682529"
   };
   assert.throws(() => loadConfig(env), /must use HTTPS/);
   assert.throws(() => loadConfig({ ...env, KEYCLOAK_ISSUER_URL: undefined }), /Missing required/);

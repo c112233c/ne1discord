@@ -11,6 +11,12 @@ Backend for ne1discord authentication, account binding, and Discord profile sync
 5. The authenticated identities are stored in a MariaDB-backed server session.
 6. Browser is redirected to `/verify` to review and link the Keycloak and Discord accounts.
 
+## Persistent Discord verification message
+
+On backend startup, the bot checks the configured `DISCORD_VERIFY_CHANNEL_ID` for its verification entrypoint message. If it is not found in the latest 100 channel messages, it posts one with a Link button to `APP_BASE_URL/auth/keycloak`. The message remains in the channel and is not recreated on normal restarts while it remains among those latest messages.
+
+The bot needs View Channel, Read Message History, and Send Messages in the verification channel, in addition to its existing role-management permissions. Configure `DISCORD_VERIFY_CHANNEL_ID` with the channel ID and `APP_BASE_URL` with the public HTTPS base URL.
+
 ## Account binding and Verify
 
 - `GET /api/binding` returns signed-in identities, active Discord accounts linked to the Keycloak subject, current binding/access status, and a session-bound CSRF token.
@@ -39,9 +45,7 @@ For each account, the job reads the current guild member roles, removes only the
 
 The job never deletes or unlinks account bindings, kicks/bans members, or removes department roles/nicknames. Discord 429 and transient 5xx/network failures are retried with bounded backoff; permanent per-account failures are logged and do not prevent processing the remaining accounts. The job exits non-zero if any account failed so Kubernetes can report/retry the Job.
 
-Required environment variables for the job are `DB_HOST`, `DB_NAME`, `DB_USER`, `DB_PASSWORD`, `DISCORD_BOT_TOKEN`, `DISCORD_GUILD_ID`, and `DISCORD_VERIFIED_ROLE_ID`. OAuth and session secrets are not required by the job.
-
-Kubernetes CronJob example: `../ne1discord-gitops/nightly-restriction-cronjob.yaml`. Configure its image and Secret reference for the target cluster before applying it. Schedule is midnight in `Asia/Bangkok`.
+The job requires `DB_HOST`, `DB_NAME`, `DB_USER`, `DB_PASSWORD`, `DISCORD_BOT_TOKEN`, `DISCORD_GUILD_ID`, and `DISCORD_VERIFIED_ROLE_ID`. OAuth and session secrets are not required by the job.
 
 ## Requirements
 
@@ -85,8 +89,8 @@ See `.env.example`. Callback URLs must exactly match values registered in Keyclo
 - Keycloak issuer is the realm issuer URL, e.g. `https://<host>/realms/OMD`.
 - Keycloak client: enable Standard Flow and confidential client authentication.
 - Discord OAuth2 scope: `identify`; users join the Discord server themselves.
-- Set `DISCORD_BOT_TOKEN`, `DISCORD_GUILD_ID`, and `DISCORD_VERIFIED_ROLE_ID`. Inject the Bot Token from Vault/environment; never commit it.
-- Bot permissions: `Manage Nicknames` and `Manage Roles`. Its highest role must be above `Verified` and every department role it creates/manages.
+- Set `DISCORD_BOT_TOKEN`, `DISCORD_GUILD_ID`, `DISCORD_VERIFIED_ROLE_ID`, and `DISCORD_VERIFY_CHANNEL_ID`. Inject the Bot Token from Vault/environment; never commit it.
+- Bot permissions: View Channel, Read Message History, Send Messages in the verification channel, plus Manage Nicknames and Manage Roles. Its highest role must be above `Verified` and every department role it creates/manages.
 - Set `TRUST_PROXY=1` only behind one trusted reverse proxy.
 - Production requires HTTPS and a strong `SESSION_SECRET` (minimum 32 characters).
 

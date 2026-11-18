@@ -1,6 +1,7 @@
 import { createHash } from "node:crypto";
 
 const DISCORD_API = "https://discord.com/api/v10";
+const VERIFY_MESSAGE_MARKER = "ne1discord:verification-entrypoint";
 
 export function buildDiscordNickname(userId, name) {
   const prefix = userId ? String(userId) : "";
@@ -37,6 +38,43 @@ export function createDiscordBotService(config, database, fetchImpl = fetch) {
     return payload;
   }
 
+  async function ensureVerificationMessage({ channelId, appBaseUrl }) {
+    if (!channelId) throw new Error("Discord verification channel ID is required");
+    const baseUrl = new URL(appBaseUrl);
+    if (baseUrl.protocol !== "https:" && baseUrl.hostname !== "localhost") {
+      throw new Error("APP_BASE_URL must use HTTPS for the Discord verification link");
+    }
+    const messages = await request(`/channels/${channelId}/messages?limit=100`);
+    const existing = messages.find((message) =>
+      message.author?.bot && message.embeds?.some((embed) => embed.footer?.text === VERIFY_MESSAGE_MARKER)
+    );
+    if (existing) {
+      return { created: false, messageId: existing.id };
+    }
+
+    const message = await request(`/channels/${channelId}/messages`, {
+      method: "POST",
+      body: JSON.stringify({
+        embeds: [{
+          title: "ยินดีต้อนรับสู่ Discord Server",
+          description: "กรุณายืนยันตัวตนก่อนเข้าใช้งานระบบ โดยเข้าสู่ระบบผ่านบัญชี Keycloak OMD",
+          color: 0x5865F2,
+          footer: { text: VERIFY_MESSAGE_MARKER }
+        }],
+        components: [{
+          type: 1,
+          components: [{
+            type: 2,
+            style: 5,
+            label: "Login with Keycloak",
+            url: new URL("/auth/keycloak", baseUrl).toString()
+          }]
+        }]
+      })
+    });
+    return { created: true, messageId: message.id };
+  }
+
   async function getDepartmentRoleId(departmentName) {
     if (typeof departmentName !== "string" || !departmentName.trim()) {
       throw new Error("Keycloak departname is required");
@@ -65,7 +103,6 @@ export function createDiscordBotService(config, database, fetchImpl = fetch) {
           })
         });
       } else if (String(role.permissions ?? "0") !== "0") {
-        // Department roles are informational only and must not carry channel permissions.
         await request(`/guilds/${guildId}/roles/${role.id}`, {
           method: "PATCH", body: JSON.stringify({ permissions: "0" })
         });
@@ -109,5 +146,5 @@ export function createDiscordBotService(config, database, fetchImpl = fetch) {
     return { nickname, departmentRoleId, verifiedRoleId };
   }
 
-  return { synchronizeMember, getDepartmentRoleId };
+  return { synchronizeMember, getDepartmentRoleId, ensureVerificationMessage };
 }
