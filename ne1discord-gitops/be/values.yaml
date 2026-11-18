@@ -2,7 +2,7 @@ replicaCount: 1
 
 image:
   repository: ghcr.io/c112233c/ne1discord-be
-  tag: "sha-5a57f3405bd2e2831709ab1b197a0f40895f2079"
+  tag: "sha-c3917422bb97c9bf77b01c2e7c745ce34a94dc21"
   pullPolicy: Always
   pullSecrets: []
 
